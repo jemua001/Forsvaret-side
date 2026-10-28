@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forsvaret – Norwegian Armed Forces</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#f3f1ec; --surface:#fff; --ink:#0f1b33; --muted:#56607a; --line:#d5d9e2;
+  --navy:#00205b; --red:#ba0c2f; --hero:#00205b; --hero-ink:#fff;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#0b1222;--surface:#141f38;--ink:#eef2fb;--muted:#a3afc9;--line:#26355c;--hero:#0a1a45;color-scheme:dark}
+}
+
+:root[data-theme="dark"]{--bg:#0b1222;--surface:#141f38;--ink:#eef2fb;--muted:#a3afc9;--line:#26355c;--hero:#0a1a45;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Archivo,system-ui,sans-serif;line-height:1.55}
+.hero{background:var(--hero);color:var(--hero-ink);padding:clamp(28px,6vw,64px) clamp(20px,5vw,56px);position:relative;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;background:var(--red)}
+.hero::before{right:12%;top:0;bottom:0;width:7%}
+.hero::after{left:0;right:0;top:46%;height:12%}
+.hero::before,.hero::after{opacity:.9}
+.hero-in{position:relative;max-width:960px;margin:0 auto;z-index:1}
+.hero h1{font-size:clamp(44px,10vw,96px);font-weight:800;letter-spacing:-.035em;line-height:.95;margin:0 0 12px;text-shadow:0 2px 0 var(--navy)}
+.hero p{max-width:40ch;margin:0;font-size:1.15rem;background:var(--navy);display:inline-block;padding:8px 12px}
+nav{display:flex;gap:4px;max-width:960px;margin:0 auto;padding:16px clamp(20px,5vw,56px) 0}
+nav button,.btn{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 20px;font-weight:600;border-radius:10px}
+nav button[aria-selected="true"]{background:var(--red);border-color:var(--red);color:#fff}
+button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+main{max-width:960px;margin:0 auto;padding:24px clamp(20px,5vw,56px) 56px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{background:var(--surface);border:2px solid var(--line);border-left:8px solid var(--red);border-radius:12px;padding:18px}
+.card h2{margin:0 0 2px;font-size:1.25rem}
+.card small{color:var(--muted);font-weight:600}
+.card p{margin:8px 0 0;font-size:.95rem;color:var(--muted)}
+h3{font-size:1.5rem;margin:36px 0 12px}
+.facts{display:grid;gap:10px;padding:0;list-style:none}
+.facts li{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+a.card{display:block;text-decoration:none;color:inherit;transition:transform .15s}
+a.card:hover{transform:translateY(-3px)}
+a:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.back{display:inline-block;margin-bottom:16px;font-weight:600;color:var(--ink)}
+.bt{font-size:clamp(38px,9vw,72px);font-weight:800;letter-spacing:-.03em;line-height:1;margin:0}
+.en{color:var(--muted);font-weight:600;margin:4px 0 16px}
+.lead{font-size:1.2rem;max-width:60ch}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:32px;flex-wrap:wrap}
+a.btn{text-decoration:none;display:inline-block}
+.panel[hidden]{display:none}
+.hud{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;margin-bottom:12px;font-weight:600}
+.hud b{font-size:1.4rem}
+canvas{width:100%;display:block;aspect-ratio:8/5;background:var(--surface);border:3px solid var(--navy);border-radius:14px;cursor:none;touch-action:none}
+.note{color:var(--muted);font-size:.9rem}
+.foot{text-align:center;padding-bottom:32px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <h1>Forsvaret</h1>
+  <p>The Norwegian Armed Forces: a quick tour, then a round on the shooting range.</p>
+</div></header>
+
+<nav role="tablist">
+  <button role="tab" id="t-info" aria-selected="true" aria-controls="p-info">Forsvaret</button>
+  <button role="tab" id="t-game" aria-selected="false" aria-controls="p-game">Shooting range</button>
+</nav>
+
+<main>
+<section class="panel" id="p-info" role="tabpanel">
+  <div class="grid" id="branches"></div>
+  <h3>Good to know</h3>
+  <ul class="facts" id="facts"></ul>
+</section>
+
+<section class="panel" id="p-branch" hidden></section>
+
+<section class="panel" id="p-game" role="tabpanel" hidden>
+  <div class="hud">
+    <span>Score <b id="score">0</b></span>
+    <span>Time <b id="time">30</b></span>
+    <span>Accuracy <b id="acc">–</b></span>
+    <span>Best <b id="best">0</b></span>
+    <button class="btn" id="start">Start round</button>
+  </div>
+  <canvas id="cv" width="800" height="500" aria-label="Target practice game"></canvas>
+  <p class="note">Click or tap the targets before they vanish. Bullseye is 3 points, middle ring 2, outer ring 1. Targets only, paper and steel.</p>
+</section>
+</main>
+
+<div class="foot"><button class="btn" id="theme">Switch theme</button></div>
+
+<script>
+const branches = [
+  {"name":"Hæren","en":"Army","text":"Land forces, including Brigade Nord based in the north and the Royal Guard in Oslo."},
+  {"name":"Sjøforsvaret","en":"Navy","text":"Frigates, submarines and coastal forces guarding a very long coastline."},
+  {"name":"Luftforsvaret","en":"Air Force","text":"Fighter jets, maritime patrol aircraft and helicopters, plus air defence."},
+  {"name":"Heimevernet","en":"Home Guard","text":"A reserve force rooted in local communities, set up in 1946."},
+  {"name":"Cyberforsvaret","en":"Cyber Defence","text":"Protects military networks and communications."}
+];
+const facts = [
+  "Norway was a founding member of NATO in 1949.",
+  "Norway shares a land border with Russia in the far north, in Finnmark.",
+  "Since 2015 conscription applies to women as well as men, a first in NATO.",
+  "Norwegian F-35A fighter jets are operated by the Air Force."
+];
+const info = {
+  "Hæren":{slug:"haeren",lead:"The Army is Norway's land force, built to defend the country from the Arctic north down to the capital.",points:["Brigade Nord, in Troms in the north, is the main combat brigade.","His Majesty The King's Guard guards the royal palace in Oslo and also serves as a combat battalion.","The Telemark Battalion is a rapid-reaction unit that can deploy at short notice.","Equipment includes CV90 infantry fighting vehicles and Leopard 2 tanks."]},
+  "Sjøforsvaret":{slug:"sjoforsvaret",lead:"The Navy protects one of the longest coastlines in Europe and the sea areas around it.",points:["The main naval base is Haakonsvern, near Bergen.","Ships carry the prefix KNM, for Kongelig Norsk Marine.","The five Fridtjof Nansen-class frigates were built in Spain.","Norway is buying new submarines together with Germany, the Type 212CD.","The Coast Guard (Kystvakten) is part of the Navy."]},
+  "Luftforsvaret":{slug:"luftforsvaret",lead:"The Air Force watches Norwegian airspace and keeps fighters ready to take off at all times.",points:["F-35A fighters are based at Ørland, and Norway keeps jets on quick reaction alert.","P-8A Poseidon aircraft patrol the sea for submarines and ships.","NASAMS air defence was developed in Norway by Kongsberg.","AW101 helicopters handle search and rescue."]},
+  "Heimevernet":{slug:"heimevernet",lead:"The Home Guard is a reserve force of part-time soldiers who know their local areas well.",points:["It was founded in 1946, after the Second World War.","It is organised in regional districts across the whole country.","Many soldiers keep their equipment at home so they can respond fast.","It supports the police and rescue services in a crisis."]},
+  "Cyberforsvaret":{slug:"cyberforsvaret",lead:"Cyber Defence keeps the armed forces' networks and communications running and protected.",points:["It was set up as its own branch in 2012.","It provides secure communications for the other branches.","It defends military systems against cyber attacks."]}
+};
+document.getElementById('branches').innerHTML = branches.map(b =>
+  `<a class="card" href="#${info[b.name].slug}" data-go="${info[b.name].slug}"><h2>${b.name}</h2><small>${b.en}</small><p>${b.text}</p></a>`).join('');
+document.getElementById('facts').innerHTML = facts.map(f => `<li>${f}</li>`).join('');
+
+// Tabs
+const panels = {info:'p-info', game:'p-game', branch:'p-branch'};
+function renderBranch(i){
+  const b = branches[i], d = info[b.name];
+  const prev = branches[(i+branches.length-1)%branches.length], next = branches[(i+1)%branches.length];
+  $('p-branch').innerHTML = `<a class="back" href="#info" data-go="info">← All branches</a>
+    <h2 class="bt">${b.name}</h2><p class="en">${b.en}</p><p class="lead">${d.lead}</p>
+    <h3>Key points</h3><ul class="facts">${d.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <div class="pager"><a class="btn" href="#${info[prev.name].slug}" data-go="${info[prev.name].slug}">← ${prev.name}</a>
+    <a class="btn" href="#${info[next.name].slug}" data-go="${info[next.name].slug}">${next.name} →</a></div>`;
+}
+function route(token){
+  const h = typeof token==='string' ? token : decodeURIComponent(location.hash.slice(1));
+  let k = 'info', idx = branches.findIndex(b => info[b.name].slug===h);
+  if(h==='game') k='game'; else if(idx>=0) k='branch';
+  for(const [key,id] of Object.entries(panels)) document.getElementById(id).hidden = key!==k;
+  document.getElementById('t-info').setAttribute('aria-selected', k!=='game');
+  document.getElementById('t-game').setAttribute('aria-selected', k==='game');
+  if(k==='branch') renderBranch(idx);
+  if(k!=='game') stop();
+  scrollTo(0,0);
+}
+function go(t){ try{ location.hash = t; }catch(e){} route(t); }
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-go]'); if(!a) return;
+  e.preventDefault(); go(a.dataset.go);
+});
+window.addEventListener('hashchange', () => route());
+document.getElementById('t-info').onclick = () => go('info');
+document.getElementById('t-game').onclick = () => go('game');
+document.getElementById('theme').onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+};
+
+// Game
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const $ = id => document.getElementById(id);
+let targets=[], score=0, shots=0, hits=0, left=30, running=false, mouse={x:400,y:250,on:false}, last=0, spawnT=0, raf=0, timer=0, best=0, flashes=[];
+try{ best = +localStorage.getItem('best')||0 }catch(e){}
+$('best').textContent = best;
+
+function pos(e){
+  const r = cv.getBoundingClientRect();
+  return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height};
+}
+cv.addEventListener('pointermove', e => { Object.assign(mouse, pos(e), {on:true}); });
+cv.addEventListener('pointerleave', () => mouse.on=false);
+cv.addEventListener('pointerdown', e => {
+  Object.assign(mouse, pos(e), {on:true});
+  if(!running) return;
+  shots++;
+  let hit=false;
+  for(let i=targets.length-1;i>=0;i--){
+    const t=targets[i], d=Math.hypot(mouse.x-t.x, mouse.y-t.y);
+    if(d<=t.r){
+      const pts = d<t.r*.25 ? 3 : d<t.r*.6 ? 2 : 1;
+      score+=pts; hits++; hit=true;
+      flashes.push({x:t.x,y:t.y,txt:'+'+pts,life:.6});
+      targets.splice(i,1); break;
+    }
+  }
+  if(!hit) flashes.push({x:mouse.x,y:mouse.y,txt:'miss',life:.4});
+  updateHud();
+});
+
+function updateHud(){
+  $('score').textContent = score;
+  $('time').textContent = Math.ceil(left);
+  $('acc').textContent = shots ? Math.round(hits/shots*100)+'%' : '–';
+}
+function start(){
+  targets=[]; flashes=[]; score=0; shots=0; hits=0; left=30; spawnT=0; running=true; last=performance.now();
+  $('start').textContent='Restart'; updateHud();
+  cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
+}
+function stop(){ running=false; cancelAnimationFrame(raf); }
+function end(){
+  running=false;
+  if(score>best){ best=score; $('best').textContent=best; try{localStorage.setItem('best',best)}catch(e){} }
+  draw(true);
+}
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  left-=dt; spawnT-=dt;
+  if(spawnT<=0){
+    const r=28+Math.random()*22;
+    targets.push({x:r+Math.random()*(cv.width-2*r), y:r+Math.random()*(cv.height-2*r), r, life:1.8});
+    spawnT=.55+Math.random()*.35;
+  }
+  targets.forEach(t=>t.life-=dt);
+  targets=targets.filter(t=>t.life>0);
+  flashes.forEach(f=>f.life-=dt); flashes=flashes.filter(f=>f.life>0);
+  updateHud();
+  if(left<=0){ left=0; updateHud(); end(); return; }
+  draw(); raf=requestAnimationFrame(loop);
+}
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function draw(over){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const ink=css('--ink'), red='#ba0c2f', navy='#00205b';
+  targets.forEach(t=>{
+    const a = Math.min(1,t.life*2);
+    ctx.globalAlpha=a;
+    [[1,'#ffffff'],[.6,navy],[.25,red]].forEach(([k,c])=>{
+      ctx.beginPath(); ctx.arc(t.x,t.y,t.r*k,0,7); ctx.fillStyle=c; ctx.fill();
+      ctx.lineWidth=2; ctx.strokeStyle=navy; ctx.stroke();
+    });
+    ctx.globalAlpha=1;
+  });
+  ctx.font='700 26px Archivo, sans-serif'; ctx.textAlign='center';
+  flashes.forEach(f=>{ ctx.globalAlpha=Math.min(1,f.life*2); ctx.fillStyle=f.txt==='miss'?'#888':red; ctx.fillText(f.txt,f.x,f.y-10); ctx.globalAlpha=1; });
+  if(mouse.on){
+    ctx.strokeStyle=red; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(mouse.x,mouse.y,16,0,7); ctx.moveTo(mouse.x-26,mouse.y); ctx.lineTo(mouse.x+26,mouse.y); ctx.moveTo(mouse.x,mouse.y-26); ctx.lineTo(mouse.x,mouse.y+26); ctx.stroke();
+  }
+  if(over){
+    ctx.fillStyle='rgba(0,32,91,.82)'; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='#fff'; ctx.font='800 56px Archivo, sans-serif';
+    ctx.fillText('Round over',cv.width/2,210);
+    ctx.font='600 28px Archivo, sans-serif';
+    ctx.fillText('Score '+score+'  ·  Accuracy '+(shots?Math.round(hits/shots*100):0)+'%',cv.width/2,265);
+  }
+}
+function idle(){
+  if(running) return;
+  if(!left || left===30){ draw(); ctx.fillStyle=css('--ink'); ctx.font='700 30px Archivo, sans-serif'; ctx.textAlign='center'; if(!score&&!shots) ctx.fillText('Press "Start round"',cv.width/2,cv.height/2); }
+}
+$('start').onclick = start;
+idle();
+route();
+</script>
+</body>
+</html>
